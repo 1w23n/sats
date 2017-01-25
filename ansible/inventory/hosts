@@ -1,0 +1,10 @@
+[targets]
+192.168.254.55
+
+[cisco]
+192.168.254.248 username=manager password=friend
+
+[cisco:vars]
+enable_pass=friend
+ansible_username=manager
+ansible_password=friend

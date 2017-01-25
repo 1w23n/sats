@@ -1,0 +1,12 @@
+- hosts: cisco
+  user: manager
+  gather_facts: no
+  sudo: false
+
+  tasks:
+  - name: sh run
+    raw: "show session"
+    register: show_run
+
+  - name: sh run output
+    local_action: shell /bin/echo "{{ show_run.stdout }}" > /tmp/sh_run_{{ inventory_hostname }}.log

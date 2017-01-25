@@ -1,0 +1,4 @@
+- hosts: targets
+  tasks:
+  - user: name=piyo
+  - copy: src=/home/foo/bar.txt dest=/home/piyo owner=piyo group=piyo mode=777

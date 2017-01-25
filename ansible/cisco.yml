@@ -1,0 +1,21 @@
+---
+
+- hosts: cisco
+  gather_facts: no
+  user: manager
+
+  tasks:
+  - name: crawl config file
+    local_action:
+      module: ios_command
+      authorize: yes
+      auth_pass: "{{ enable_pass }}"
+      username: "{{ ansible_username }}"
+      password: "{{ ansible_password }}"
+      hosts: "{{ inventory_hostname }}"
+      commands:
+        - show run
+    register: result
+
+  - name: log write out
+    local_action: template src=/tmp/conf.j2 dest=/tmp/sh_run_{{ inventory_hostname }}.log
