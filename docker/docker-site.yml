@@ -1,0 +1,40 @@
+---
+- name: docker host
+  hosts: docker01
+  tasks:
+
+  - name: deploy centos container
+    docker: image=centos:6.8 name=orv privileged=yes ports=7070:7070 expose=80
+            tty=yes command=/sbin/init docker_api_version=1.19
+
+  - name: deploy ubuntu container
+    docker: image=ubuntu:14.04 name=ora privileged=yes
+            tty=yes command=/bin/bash docker_api_version=1.19
+
+  - name: deploy alpine1 container
+    docker: image=1w23n:1.0 name=orz privileged=yes
+            tty=yes command=/bin/ash docker_api_version=1.19
+
+  - name: deploy alpine2 container
+    docker: image=1w23n:1.0 name=ore privileged=yes
+            tty=yes command=/bin/ash docker_api_version=1.19
+
+- name: ubuntu container
+  hosts: ora
+  connection: docker
+  gather_facts: no
+  tasks:
+  - raw: apt-get update -qq && apt-get install -qq python2.7
+
+  - name: apt update
+    apt: upgrade=dist update_cache=yes
+
+  - name: apt install
+    apt: name={{ item }} state=latest
+    with_items:
+      - vim
+      - curl
+      - wget
+      - tcpdump
+      - tcptraceroute
+      - nmap

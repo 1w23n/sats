@@ -1,0 +1,6 @@
+Host docker01
+  HostName 192.168.254.55
+  User root
+  UserKnownHostsFile /dev/null
+  IdentityFile ~/.ssh/id_rsa
+  StrictHostKeyChecking no
