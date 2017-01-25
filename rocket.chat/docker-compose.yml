@@ -1,0 +1,17 @@
+db:
+  image: mongo:latest
+  volumes:
+    - ./data/runtime/db:/data/db
+    - ./data/dump:/dump
+  command: mongod --smallfiles
+
+rocketchat:
+  image: rocketchat/rocket.chat:latest
+  environment:
+    - MONGO_URL=mongodb://db:27017/rocketchat
+    - ROOT_URL=http://localhost
+    - Accounts_UseDNSDomainCheck=false
+  links:
+    - db:db
+  ports:
+    - 3000:3000

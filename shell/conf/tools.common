@@ -1,0 +1,18 @@
+HOSTNAME=`hostname`
+YYYYMMDD=`date +%Y%m%d`
+LOG_FILE=${SCRIPT_DIR}/logs/${SHELL_NAME}_${YYYYMMDD}.log
+
+WriteLog(){
+
+    _severity=${1}
+    _id=${2}
+    _msg=${3}
+    _date=`date +%Y-%m-%d`
+    _hhmmss=`date +%H:%M:%S`
+
+    # date,timestamp,hostname,shellname,loglevel,logid,message
+    echo "${_date},${_hhmmss},${HOSTNAME},${SHELL_NAME},${_severity},${_id},${_msg}"
+
+}
+
+#EOF
