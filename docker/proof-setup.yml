@@ -1,0 +1,53 @@
+---
+- name: docker host
+  hosts: lightgreen
+  tasks:
+
+  - name: deploy proof servers container
+    docker: image=centos:6.8 name={{ item }} privileged=yes
+            tty=yes command=/bin/bash docker_api_version=1.19
+    with_items:
+      - dns01
+      - dns02
+      - db01
+      - db02
+      - web01
+      - web02
+
+- name: proof servers container
+  hosts: proof-group
+  connection: docker
+  gather_facts: no
+  tasks:
+
+  - name: yum update
+    yum: name='*' state=latest
+
+  - name: yum install
+    yum: name={{ item }} state=latest
+    with_items:
+      - vim
+      - curl
+      - wget
+      - tcpdump
+      - nmap
+
+- name: dns tasks
+  hosts: dns-servers
+  connection: docker
+  gather_facts: no
+  tasks:
+
+  - name: epel install
+    yum: name={{ item }} state=latest
+    with_items:
+      - epel-release
+      - yum-plugin-priorities
+
+  - name: get repository for pdns
+    get_url:
+      url: https://repo.powerdns.com/repo-files/centos-auth-40.repo
+      dest: /etc/yum.repos.d/powerdns-auth-40.repo
+
+  - name: pdns install
+    yum: name=pdns state=latest
