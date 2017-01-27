@@ -1,4 +1,4 @@
-Host docker01
+Host lightgreen
   HostName 192.168.254.55
   User root
   UserKnownHostsFile /dev/null

@@ -1,0 +1,14 @@
+---
+- name: docker host
+  hosts: lightgreen
+  tasks:
+
+  - name: deploy dns01 container
+    docker: image=centos:6.8 name={{ item }} state=stopped
+    with_items:
+      - dns01
+      - dns02
+      - db01
+      - db02
+      - web01
+      - web02
