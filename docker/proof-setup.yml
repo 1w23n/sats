@@ -4,7 +4,7 @@
   tasks:
 
   - name: deploy proof servers container
-    docker: image=centos:6.8 name={{ item }} privileged=yes
+    docker: image=centos:6.8 name={{ item }} hostname={{ item }} privileged=yes
             tty=yes command=/bin/bash docker_api_version=1.19
     with_items:
       - dns01
@@ -32,6 +32,12 @@
       - tcpdump
       - nmap
 
+  #- name: libselinux-python install
+  #  yum: name=libselinux-python state=present
+
+  #- name: selinux disable
+  #  selinux: state=disabled
+
 - name: dns tasks
   hosts: dns-servers
   connection: docker
@@ -51,3 +57,18 @@
 
   - name: pdns install
     yum: name=pdns state=latest
+
+  - name: pdns process start with enable
+    service: name=pdns state=started enabled=yes
+
+- name: db tasks
+  hosts: db-servers
+  connection: docker
+  gather_facts: no
+  tasks:
+
+  - name: mysqld install
+    yum: name=mysql-server state=latest
+
+  - name: mysqld process start with enable
+    service: name=mysqld state=started enabled=yes

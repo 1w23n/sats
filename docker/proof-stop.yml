@@ -3,7 +3,7 @@
   hosts: lightgreen
   tasks:
 
-  - name: stopping dns01 container
+  - name: stopping proof container
     docker: image=centos:6.8 name={{ item }} state=stopped
     with_items:
       - dns01
