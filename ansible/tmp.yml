@@ -1,0 +1,29 @@
+---
+- name: all iws servers global configuration.
+  hosts: iwss
+  #hosts: iws-dnss
+  gather_facts: no
+  tasks:
+
+  - name: change yum.conf for kernel and os not update.
+    lineinfile:
+      name: /etc/yum.conf
+      regexp: '^exclude=kernel'
+      line: 'exclude=kernel* centos*'
+      state: present
+
+  - name: add nameserver.
+    lineinfile:
+      name: /etc/resolv.conf
+      regexp: '^nameserver 8\.8\.*'
+      line: 'nameserver 8.8.4.4'
+      state: present
+
+  - name: chage state disabled for selinux.
+    lineinfile:
+      name: /etc/selinux/config
+      regexp: '^SELINUX='
+      line: 'SELINUX=disabled'
+
+  - name: install libselinux-python.
+    yum: name=libselinux-python state=present

@@ -1,0 +1,55 @@
+---
+- hosts: cisco
+  gather_facts: no
+  connection: local
+
+  tasks:
+    - name: ios_config
+      ios_config:
+        lines:
+          - ip route 1.1.1.1 255.255.255.255 Null0
+        provider: "{{ cli }}"
+      register: result
+    - name: DEBUG
+      debug: var=result
+
+
+    - name: run show version on remote devices
+      ios_command:
+        commands:
+          - show version
+          - show ip route
+          - show start
+        provider: "{{ cli }}"
+      register: result
+    - name: DEBUG
+      debug: var=result
+
+    - name: i/f shutdown
+      ios_config:
+        parents:
+          - interface range FastEthernet 0-4
+        lines:
+          - no shutdown
+          - description "free"
+          - switchport access vlan 10
+        provider: "{{ cli }}"
+      register: result
+
+    - name: i/f aiueo
+      ios_config:
+        parents:
+          - interface FastEthernet{{ item }}
+        lines:
+          - description No.{{ item }}
+        provider: "{{ cli }}"
+      register: result
+      with_sequence: start=5 end=7
+
+  vars:
+    cli:
+      host: "{{ inventory_hostname }}"
+      username: "{{ ansible_username }}"
+      password: "{{ ansible_password }}"
+      authorize: true
+      auth_pass: "{{ enable_secret }}"

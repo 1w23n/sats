@@ -2,9 +2,9 @@
 192.168.254.55
 
 [cisco]
-192.168.254.248 username=manager password=friend
+192.168.254.121 username=root password=Passw0rd
 
 [cisco:vars]
-enable_pass=friend
-ansible_username=manager
-ansible_password=friend
+enable_pass=Passw0rd
+ansible_username=root
+ansible_password=Passw0rd

@@ -1,0 +1,19 @@
+---
+- hosts: cisco
+  gather_facts: no
+  connection: local
+
+  tasks:
+    - name: ssh checking
+      ios_command:
+        commands:
+          - show users
+        provider: "{{ cli }}"
+
+  vars:
+    cli:
+      host: "{{ inventory_hostname }}"
+      username: "{{ ansible_username }}"
+      password: "{{ ansible_password }}"
+      authorize: true
+      auth_pass: "{{ enable_secret }}"
