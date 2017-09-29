@@ -1,0 +1,114 @@
+---
+- hosts: cisco
+  gather_facts: no
+  connection: local
+
+  tasks:
+    - name: i/f common
+      ios_config:
+        parents:
+          - interface range FastEthernet 0-4
+        lines:
+          - shutdown
+          - description "free"
+        provider: "{{ cli }}"
+      register: result
+    - name: DEBUG
+      debug: var=result
+
+    - name: i/f aiueo
+      ios_config:
+        parents:
+          - interface FastEthernet{{ item }}
+        lines:
+          - description No.{{ item }}
+          - switchport mode access
+          - switchport access vlan 200
+        provider: "{{ cli }}"
+      register: result
+      with_sequence: start=5 end=7
+    - name: DEBUG
+      debug: var=result
+
+    - name: vlan
+      ios_config:
+        parents:
+          - interface Vlan1
+        lines:
+          - shutdown
+        provider: "{{ cli }}"
+      register: result
+    - name: DEBUG
+      debug: var=result
+
+    - name: routing
+      ios_config:
+        lines:
+          - ip route 1.1.1.1 255.255.255.255 Null0
+        provider: "{{ cli }}"
+      register: result
+    - name: DEBUG
+      debug: var=result
+
+    - name: common
+      ios_config:
+        lines:
+          # doing
+          - service password-encryption
+          - hostname {{ inventory_hostname }}
+          - username {{ login_username }} secret {{ login_password }}
+          - ip ssh version 2
+
+          # date, time, clock
+          - service timestamps debug datetime msec localtime show-timezone
+          - service timestamps log datetime msec localtime show-timezone
+          - clock timezone JST 9 0
+          - ntp server {{ ntp_server1 }} source Loopback0
+          - ntp server {{ ntp_server2 }} source Loopback0
+
+          # no functions
+          - no ip source-route
+          - no ip domain lookup
+          - no ipv6 cef
+          - no cdp run
+          - no ip http server
+          - no ip http secure-server
+          - no spanning-tree vlan 1
+
+          # log
+          - logging buffered 32768
+          - logging trap debugging
+          - logging facility local6
+          - logging source-interface Loopback0
+          - logging host {{ log_server1 }}
+          - logging host {{ log_server2 }}
+
+          # snmp
+          - snmp-server trap-source Loopback0
+          - snmp-server enable traps snmp authentication linkdown linkup coldstart warmstart
+          - snmp-server enable traps envmon fan shutdown supply temperature status
+          - snmp-server enable traps {{ snmp_trap1 }}
+          - snmp-server enable traps {{ snmp_trap2 }}
+          - snmp-server host {{ snmp_server1 }} version {{ snmp_version1 }} {{ snmp_community1 }}
+          - snmp-server host {{ snmp_server2 }} version {{ snmp_version2 }} {{ snmp_community2 }}
+
+          # radius
+          #- radius-server dead-criteria tries 3
+          #- radius-server host {{ radius_server1 }} key {{ radius_key1 }}
+          #- radius-server host {{ radius_server2 }} key {{ radius_key2 }}
+          #- radius-server retransmit 2
+          #- radius-server timeout 3
+          #- radius-server deadtime 1440
+
+        provider: "{{ cli }}"
+      register: result
+    - name: DEBUG
+      debug: var=result
+
+  vars:
+    cli:
+      host: "{{ inventory_hostname }}"
+      username: "{{ ansible_username }}"
+      password: "{{ ansible_password }}"
+      authorize: true
+      auth_pass: "{{ enable_secret }}"
