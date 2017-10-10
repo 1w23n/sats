@@ -1,0 +1,42 @@
+---
+- name: auto deploy
+  hosts: localhost
+  connection: local
+  gather_facts: false
+  user: root
+
+  vars:
+    datacenter: 'hogehoge'
+    esxi_host: '192.168.254.77'
+    notes: 'Created by Ansible'
+    iso_image: 'datastore1/iso/CentOS-6.8-x86_64-minimal.iso'
+
+  tasks:
+    - vsphere_guest:
+      vcenter_hostname: "{{ esxi_host }}"
+      username: "{{ root }}"
+      guest: "{{ inventory_hostname }}"
+      state: present
+      vm_extra_config:
+        notes: "{{ notes }}"
+      vm_disk:
+        disk1:
+          size_gb: "{{ disk }}"
+          type: thin
+          datastore: "{{ datastore }}"
+      vm_nic:
+        nic1:
+          type: vmxnet3
+          network: "{{ network }}"
+          network_type: standard
+      vm_hardware:
+        memory_mb: "{{ memmory }}"
+        num_cpus: "{{ cpucount }}"
+        osid: "{{ osid }}"
+        scsi: lsi
+        vm_cdrom:
+          type: "iso"
+          iso_path: "{{ iso_image }}"
+      esxi:
+        datacenter: "{{ datacenter }}"
+        hostname: "{{ esxi_host }}"

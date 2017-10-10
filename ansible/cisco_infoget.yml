@@ -1,0 +1,33 @@
+---
+- hosts: cisco
+  gather_facts: no
+  connection: local
+
+  tasks:
+    - name: run show version on remote devices
+      ios_command:
+        commands:
+          - show version
+          - show diag
+          - show inventory
+          - show ip route
+          - show interfaces status
+          - show crypto isakmp sa
+          - show crypto ipsec sa
+          - show startup-config
+        provider: "{{ cli }}"
+      register: result
+    - name: DEBUG
+      debug: var=result
+    - name: output file
+      local_action: shell LF=$(printf '\\\012_'); LF=${LF%_};
+                      echo "{{ result.stdout }}" | sed 's/\\n/'"$LF"'/g'
+                        > /tmp/{{ inventory_hostname }}_`date +%Y%m%d`.log
+
+  vars:
+    cli:
+      host: "{{ inventory_hostname }}"
+      username: "{{ ansible_username }}"
+      password: "{{ ansible_password }}"
+      authorize: true
+      auth_pass: "{{ enable_secret }}"

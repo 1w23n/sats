@@ -1,7 +1,6 @@
 ---
 - name: all iws servers global configuration.
   hosts: iwss
-  #hosts: iws-dnss
   gather_facts: no
   tasks:
 
@@ -25,6 +24,9 @@
   #    regexp: '^SELINUX='
   #    line: 'SELINUX=disabled'
 
+  #- name: install libselinux-python.
+  #  yum: name=libselinux-python state=present
+
   #- name: update pamd.
   #  pamd:
 
@@ -44,9 +46,6 @@
 
   - name: install tripwire.
     yum: name=tripwire state=latest
-
-  #- name: install libselinux-python.
-  #  yum: name=libselinux-python state=present
 
   - name: stop services.
     service: name={{ item }} state=stopped enabled=no
@@ -71,36 +70,3 @@
     with_items:
       - net.ipv6.conf.all.disable_ipv6
       - net.ipv6.conf.default.disable_ipv6
-
-- name: task dns servers.
-  hosts: iws-dnss
-  gather_facts: no
-  tasks:
-
-  - name: install yum-plugin.
-    yum: name={{ item }} state=latest
-    with_items:
-      - yum-plugin-priorities
-
-  - name: get repository for pdns.
-    get_url:
-      url: https://repo.powerdns.com/repo-files/centos-auth-40.repo
-      dest: /etc/yum.repos.d/powerdns-auth-40.repo
-
-  - name: pdns install
-    yum: name=pdns-4.0.3 state=present
-#
-#  - name: pdns process start with enable
-#    service: name=pdns state=started enabled=yes
-#
-#- name: db tasks
-#  hosts: db-servers
-#  connection: docker
-#  gather_facts: no
-#  tasks:
-#
-#  - name: mysqld install
-#    yum: name=mysql-server state=latest
-#
-#  - name: mysqld process start with enable
-#    service: name=mysqld state=started enabled=yes

@@ -1,0 +1,88 @@
+---
+- name: docker host
+  hosts: lightgreen
+  tasks:
+
+  - name: deploy centos7 servers container
+    docker: image=centos:7.3.1611 name={{ item }} hostname={{ item }} privileged=yes
+            tty=yes command=/bin/bash docker_api_version=1.19
+    with_items:
+      - cacti01
+
+- name: centos7 servers container
+  hosts: centos7
+  connection: docker
+  gather_facts: no
+  tasks:
+
+  - name: change yum.conf for kernel and os not update.
+    lineinfile:
+      name: /etc/yum.conf
+      regexp: '^exclude=kernel'
+      line: 'exclude=kernel* centos*'
+      state: present
+
+  - name: yum update
+    yum: name='*' state=latest
+
+  #- name: install the "Base" package group.
+  #  yum: name='@Base' state=present
+
+  - name: yum install
+    yum: name={{ item }} state=latest
+    with_items:
+      - vim
+      - curl
+      - wget
+      - tcpdump
+      - nmap
+
+  - name: epel install
+    yum: name={{ item }} state=latest
+    with_items:
+      - epel-release
+      - yum-plugin-priorities
+
+  - name: libselinux-python install
+    yum: name=libselinux-python state=present
+
+  - name: install tripwire.
+    yum: name=tripwire state=latest
+
+  #- name: stop services.
+  #  service: name={{ item }} state=stopped enabled=no
+  #  with_items:
+  #    - acpid
+  #    - cpuspeed
+  #    - haldaemon
+  #    - ip6tables
+  #    - iscsi
+  #    - iscsid
+  #    - mdmonitor
+  #    - messagebus
+  #    - netfs
+  #    - postfix
+
+  #- name: package install for cacti
+  #  yum: name={{ item }} state=latest
+  #  with_items:
+  #    - mariadb-server
+  #    - php
+  #    - httpd
+  #    - cacti
+
+  #- name: process start with enable
+  #  service: name={{ item }} state=started enabled=yes
+  #  with_items:
+  #    - mariadb
+  #    - httpd
+
+  - name: disable ipv6.
+    sysctl: |
+      name={{ item }}
+      value=1
+      sysctl_set=yes
+      sysctl_file=/etc/sysctl.d/ipv6.conf
+    with_items:
+      - net.ipv6.conf.all.disable_ipv6
+      - net.ipv6.conf.default.disable_ipv6

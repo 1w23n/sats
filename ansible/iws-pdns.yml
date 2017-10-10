@@ -1,0 +1,27 @@
+---
+- name: task dns servers.
+  hosts: iws-dnss
+  gather_facts: no
+  tasks:
+
+  - name: install yum-plugin.
+    yum: name={{ item }} state=latest
+    with_items:
+      - yum-plugin-priorities
+
+  - name: get repository for pdns.
+    get_url:
+      url: https://repo.powerdns.com/repo-files/centos-auth-40.repo
+      dest: /etc/yum.repos.d/powerdns-auth-40.repo
+
+  - name: pdns install
+    yum: name=pdns-4.0.3 state=present
+
+  - name: pdns process start with enable
+    service: name=pdns state=started enabled=yes
+
+  - name: mysqld install
+    yum: name=mysql-server state=latest
+
+  - name: mysqld process start with enable
+    service: name=mysqld state=started enabled=yes
